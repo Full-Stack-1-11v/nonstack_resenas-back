@@ -40,4 +40,9 @@ public class resenaService {
     public void delete(Resena idResena) {
         resenaRepository.delete(idResena);
     }
+
+    public Double findPromedioCalificacionPorProducto(Integer idProducto) {
+    return resenaRepository.findPromedioCalificacionPorProducto(idProducto);
+    }
+
 }

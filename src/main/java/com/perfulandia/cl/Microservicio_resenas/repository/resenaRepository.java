@@ -15,4 +15,8 @@ public interface resenaRepository extends JpaRepository<Resena, Integer> {
 
     List<Resena> findByIdProducto(Integer idProducto);
 
+    @Query("SELECT AVG(r.calificacion) FROM Resena r WHERE r.idProducto = :idProducto")
+    Double findPromedioCalificacionPorProducto(Integer idProducto);
+
+
 }

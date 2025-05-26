@@ -97,4 +97,14 @@ public class resenaController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/promedioPorProducto/{idProducto}")
+    public ResponseEntity<Double> promedioPorProducto(@PathVariable Integer idProducto) {
+    Double promedio = resenaService.findPromedioCalificacionPorProducto(idProducto);
+    if (promedio == null) {
+        return ResponseEntity.noContent().build();
+    } else {
+        return ResponseEntity.ok(promedio);
+    }
+    }
+
 }
