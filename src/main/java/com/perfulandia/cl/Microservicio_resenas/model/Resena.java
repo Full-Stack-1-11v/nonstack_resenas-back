@@ -25,6 +25,9 @@ public class Resena {
     @Column(unique=false, length = 200,nullable=false)
     private String descripcion;
 
+    @Column(unique=false, length = 10,nullable=false)
+    private Integer calificacion;
+
     //@ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
     private int idCliente;

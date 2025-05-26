@@ -78,7 +78,7 @@ public class resenaController {
         if (resenaExistente == null) {
             return ResponseEntity.notFound().build();
         }
-        // Aquí podrías actualizar solo los campos que vienen en resenaParcial
+        // actualizar solo los campos que vienen en resenaParcial
         if (resenaParcial.getDescripcion() != null) {
             resenaExistente.setDescripcion(resenaParcial.getDescripcion());
         }
@@ -96,8 +96,5 @@ public class resenaController {
         resenaService.delete(resenaExistente);
         return ResponseEntity.noContent().build();
     }
-
-    
-
 
 }
