@@ -2,6 +2,8 @@ package com.perfulandia.cl.Microservicio_resenas.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class Resena {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idResena;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(unique=false, length = 20,nullable=false)
     @Temporal(TemporalType.DATE)
     private Date fechaResena;
