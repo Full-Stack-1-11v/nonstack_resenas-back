@@ -1,8 +1,10 @@
-package com.perfulandia.cl.Microservicio_resenas;
+package com.perfulandia.cl.Microservicio_resenas.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 
 import java.util.Date;
 import java.util.List;
@@ -69,4 +71,35 @@ public class ResenaServiceTest {
 
         
     }
+
+    @Test 
+    public void testSave() {
+        Resena nuevaResena = new Resena(1, new Date(),"Excelente producto",1,1,1);
+        when(resenaRepository.save(nuevaResena)).thenReturn(nuevaResena);
+
+        Resena resenaGuardada = resenaService.save(nuevaResena);
+
+        assertNotNull(resenaGuardada);
+        assertEquals(resenaGuardada.getIdResena(), nuevaResena.getIdResena());
+    }
+
+    @Test
+    public void testDelete() {
+        Resena resena = new Resena(1, new Date(),"Excelente producto",1,1,1);
+        resenaService.delete(resena);
+
+       verify(resenaRepository, times(1)).delete(resena);
+
+    }
+    
+    @Test
+    public void testFindPromedioCalificacionPorProducto() {
+        when(resenaRepository.findPromedioCalificacionPorProducto(1)).thenReturn(4.5);
+
+        Double promedio = resenaService.findPromedioCalificacionPorProducto(1);
+
+        assertNotNull(promedio);
+        assertEquals(4.5, promedio);
+    }
+
 }
