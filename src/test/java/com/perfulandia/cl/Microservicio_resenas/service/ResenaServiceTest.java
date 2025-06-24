@@ -18,6 +18,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import com.perfulandia.cl.Microservicio_resenas.repository.resenaRepository;
 import com.perfulandia.cl.Microservicio_resenas.service.resenaService;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import java.util.Optional;
 
 
@@ -27,7 +29,7 @@ public class ResenaServiceTest {
     @Autowired
     private resenaService resenaService;
 
-    @MockBean
+    @MockitoBean
     private resenaRepository resenaRepository;
 
     @Test

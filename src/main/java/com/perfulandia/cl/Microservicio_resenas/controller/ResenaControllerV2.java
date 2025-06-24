@@ -1,21 +1,17 @@
 package com.perfulandia.cl.Microservicio_resenas.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.perfulandia.cl.Microservicio_resenas.model.Resena;
 import com.perfulandia.cl.Microservicio_resenas.service.resenaService;
+import com.perfulandia.cl.Microservicio_resenas.assemblers.ResenaModelAssembler;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,18 +21,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/resena")
-@Tag(name = "Reseñas", description = "API para gestionar reseñas de productos")
-public class resenaController {
-    
+@RequestMapping("/api/v2/resena")
+public class ResenaControllerV2 {
+
     @Autowired
     private resenaService resenaService;
 
+    @Autowired
+    private ResenaModelAssembler assembler;
+
     @GetMapping("/listar")
-    @Operation(summary = "Obtener todas las reseñas", description ="Obtiene una lista de todas las reseñas disponibles en el sistema.")
+    @Operation(summary = "Obtener todas las reseñas", description = "Obtiene una lista de todas las reseñas disponibles en el sistema.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -53,36 +50,22 @@ public class resenaController {
             responseCode = "204",
             description = "No hay reseñas disponibles",
             content = @Content(mediaType = "application/json")
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<List<Resena>> listar(){
+    public ResponseEntity<CollectionModel<EntityModel<Resena>>> listar() {
         List<Resena> listaResena = resenaService.findAll();
         if (listaResena.isEmpty()) {
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(listaResena);
-            
         }
-    } 
+        List<EntityModel<Resena>> resenas = listaResena.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(CollectionModel.of(resenas));
+    }
 
-    @Parameter(description = "ID del cliente para filtrar las reseñas",required = true)
+    @Parameter(description = "ID del cliente para filtrar las reseñas", required = true)
     @GetMapping("/PorCliente/{idCliente}")
-    @Operation(summary = "Obtener reseñas por cliente", description ="Obtiene una lista de las reseñas por la id del cliente.")
+    @Operation(summary = "Obtener reseñas por cliente", description = "Obtiene una lista de las reseñas por la id del cliente.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -99,35 +82,22 @@ public class resenaController {
             responseCode = "204",
             description = "No hay reseñas disponibles para el cliente",
             content = @Content(mediaType = "application/json")
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<List<Resena>> resenasPorCliente(@PathVariable int idCliente) {
+    public ResponseEntity<CollectionModel<EntityModel<Resena>>> resenasPorCliente(@PathVariable int idCliente) {
         List<Resena> listaResenas = resenaService.findByIdCliente(idCliente);
         if (listaResenas.isEmpty()) {
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(listaResenas);
         }
+        List<EntityModel<Resena>> resenas = listaResenas.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(CollectionModel.of(resenas));
     }
 
     @Parameter(description = "ID del producto para filtrar las reseñas", required = true)
     @GetMapping("/PorProducto/{idProducto}")
-    @Operation(summary = "Obtener reseñas por producto", description ="Obtiene una lista de las reseñas por la id del producto.")
+    @Operation(summary = "Obtener reseñas por producto", description = "Obtiene una lista de las reseñas por la id del producto.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -144,30 +114,17 @@ public class resenaController {
             responseCode = "204",
             description = "No hay reseñas disponibles para el producto",
             content = @Content(mediaType = "application/json")
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<List<Resena>> resenasPorProducto(@PathVariable Integer idProducto) {
+    public ResponseEntity<CollectionModel<EntityModel<Resena>>> resenasPorProducto(@PathVariable Integer idProducto) {
         List<Resena> listaResenas = resenaService.findByIdProducto(idProducto);
         if (listaResenas.isEmpty()) {
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(listaResenas);
         }
+        List<EntityModel<Resena>> resenas = listaResenas.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(CollectionModel.of(resenas));
     }
 
     @PostMapping("/guardar")
@@ -183,21 +140,11 @@ public class resenaController {
                     value = "{\"idResena\":1,\"fechaResena\":\"2024-06-24\",\"descripcion\":\"Excelente producto, muy recomendable.\",\"calificacion\":5,\"idCliente\":123,\"idProducto\":456}"
                 )
             )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<Resena> guardar(@RequestBody Resena nuevaResena) {
+    public ResponseEntity<EntityModel<Resena>> guardar(@RequestBody Resena nuevaResena) {
         Resena resenaGuardada = resenaService.save(nuevaResena);
-        return ResponseEntity.ok(resenaGuardada);
+        return ResponseEntity.ok(assembler.toModel(resenaGuardada));
     }
 
     @Parameter(description = "ID de la reseña a actualizar", required = true)
@@ -214,31 +161,16 @@ public class resenaController {
                     value = "{\"idResena\":1,\"fechaResena\":\"2024-06-24\",\"descripcion\":\"Excelente producto actualizado.\",\"calificacion\":4,\"idCliente\":123,\"idProducto\":456}"
                 )
             )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<Resena> actualizar(@PathVariable Integer idResena, @RequestBody Resena resenaActualizada) {
+    public ResponseEntity<EntityModel<Resena>> actualizar(@PathVariable Integer idResena, @RequestBody Resena resenaActualizada) {
         Resena resenaExistente = resenaService.findById(idResena);
         if (resenaExistente == null) {
             return ResponseEntity.notFound().build();
         }
         resenaActualizada.setIdResena(idResena);
         Resena resenaModificada = resenaService.save(resenaActualizada);
-        return ResponseEntity.ok(resenaModificada);
+        return ResponseEntity.ok(assembler.toModel(resenaModificada));
     }
 
     @Parameter(description = "ID de la reseña a modificar", required = true)
@@ -255,35 +187,19 @@ public class resenaController {
                     value = "{\"idResena\":1,\"fechaResena\":\"2024-06-24\",\"descripcion\":\"Producto modificado.\",\"calificacion\":5,\"idCliente\":123,\"idProducto\":456}"
                 )
             )
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
-    public ResponseEntity<Resena> modificar(@PathVariable Integer idResena, @RequestBody Resena resenaParcial) {
+    public ResponseEntity<EntityModel<Resena>> modificar(@PathVariable Integer idResena, @RequestBody Resena resenaParcial) {
         Resena resenaExistente = resenaService.findById(idResena);
         if (resenaExistente == null) {
             return ResponseEntity.notFound().build();
         }
-        // actualizar solo los campos que vienen en resenaParcial
         if (resenaParcial.getDescripcion() != null) {
             resenaExistente.setDescripcion(resenaParcial.getDescripcion());
         }
         // Agrega más campos según sea necesario
         Resena resenaModificada = resenaService.save(resenaExistente);
-        return ResponseEntity.ok(resenaModificada);
+        return ResponseEntity.ok(assembler.toModel(resenaModificada));
     }
 
     @Parameter(description = "ID de la reseña a eliminar", required = true)
@@ -294,21 +210,6 @@ public class resenaController {
             responseCode = "204",
             description = "Reseña eliminada exitosamente",
             content = @Content(mediaType = "application/json")
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Reseña no encontrada",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
     public ResponseEntity<Void> eliminar(@PathVariable Integer idResena) {
@@ -339,21 +240,6 @@ public class resenaController {
             responseCode = "204",
             description = "No hay reseñas disponibles para el producto",
             content = @Content(mediaType = "application/json")
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Producto no encontrado",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Resena.class))
         )
     })
     public ResponseEntity<Double> promedioPorProducto(@PathVariable Integer idProducto) {
@@ -364,5 +250,4 @@ public class resenaController {
             return ResponseEntity.ok(promedio);
         }
     }
-
 }

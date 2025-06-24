@@ -13,6 +13,7 @@ import java.util.List;
 import com.perfulandia.cl.Microservicio_resenas.model.Resena;
 import com.perfulandia.cl.Microservicio_resenas.service.resenaService;
 
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -33,7 +34,7 @@ public class ResenaControllerTest {
 
     @Autowired MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private resenaService resenaService;
 
     @Autowired
