@@ -27,6 +27,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para la gestión de reseñas de productos.
+ * Proporciona endpoints para operaciones CRUD y consultas personalizadas.
+ */
 @RestController
 @RequestMapping("/api/v1/resena")
 @Tag(name = "Reseñas", description = "API para gestionar reseñas de productos")
@@ -35,6 +39,11 @@ public class resenaController {
     @Autowired
     private resenaService resenaService;
 
+    /**
+     * Obtiene una lista de todas las reseñas disponibles en el sistema.
+     * 
+     * @return Lista de objetos Resena.
+     */
     @GetMapping("/listar")
     @Operation(summary = "Obtener todas las reseñas", description ="Obtiene una lista de todas las reseñas disponibles en el sistema.")
     @ApiResponses(value = {
@@ -76,10 +85,15 @@ public class resenaController {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.ok(listaResena);
-            
         }
     } 
 
+    /**
+     * Obtiene una lista de reseñas filtradas por el ID del cliente.
+     * 
+     * @param idCliente ID del cliente.
+     * @return Lista de objetos Resena asociados al cliente.
+     */
     @Parameter(description = "ID del cliente para filtrar las reseñas",required = true)
     @GetMapping("/PorCliente/{idCliente}")
     @Operation(summary = "Obtener reseñas por cliente", description ="Obtiene una lista de las reseñas por la id del cliente.")
@@ -125,6 +139,12 @@ public class resenaController {
         }
     }
 
+    /**
+     * Obtiene una lista de reseñas filtradas por el ID del producto.
+     * 
+     * @param idProducto ID del producto.
+     * @return Lista de objetos Resena asociados al producto.
+     */
     @Parameter(description = "ID del producto para filtrar las reseñas", required = true)
     @GetMapping("/PorProducto/{idProducto}")
     @Operation(summary = "Obtener reseñas por producto", description ="Obtiene una lista de las reseñas por la id del producto.")
@@ -170,6 +190,12 @@ public class resenaController {
         }
     }
 
+    /**
+     * Guarda una nueva reseña en el sistema.
+     * 
+     * @param nuevaResena Objeto Resena a guardar.
+     * @return La reseña guardada.
+     */
     @PostMapping("/guardar")
     @Operation(summary = "Guardar una nueva reseña", description = "Guarda una nueva reseña en el sistema.")
     @ApiResponses(value = {
@@ -200,6 +226,13 @@ public class resenaController {
         return ResponseEntity.ok(resenaGuardada);
     }
 
+    /**
+     * Actualiza una reseña existente por su ID.
+     * 
+     * @param idResena ID de la reseña a actualizar.
+     * @param resenaActualizada Objeto Resena con los nuevos datos.
+     * @return La reseña actualizada.
+     */
     @Parameter(description = "ID de la reseña a actualizar", required = true)
     @PutMapping("/actualizar/{idResena}")
     @Operation(summary = "Actualizar una reseña", description = "Actualiza una reseña existente por su ID.")
@@ -241,6 +274,13 @@ public class resenaController {
         return ResponseEntity.ok(resenaModificada);
     }
 
+    /**
+     * Modifica parcialmente los campos de una reseña existente por su ID.
+     * 
+     * @param idResena ID de la reseña a modificar.
+     * @param resenaParcial Objeto Resena con los campos a modificar.
+     * @return La reseña modificada.
+     */
     @Parameter(description = "ID de la reseña a modificar", required = true)
     @PatchMapping("/modificar/{idResena}")
     @Operation(summary = "Modificar parcialmente una reseña", description = "Modifica parcialmente los campos de una reseña existente por su ID.")
@@ -286,6 +326,12 @@ public class resenaController {
         return ResponseEntity.ok(resenaModificada);
     }
 
+    /**
+     * Elimina una reseña existente por su ID.
+     * 
+     * @param idResena ID de la reseña a eliminar.
+     * @return Respuesta sin contenido si la eliminación fue exitosa.
+     */
     @Parameter(description = "ID de la reseña a eliminar", required = true)
     @DeleteMapping("/eliminar/{idResena}")
     @Operation(summary = "Eliminar una reseña", description = "Elimina una reseña existente por su ID.")
@@ -320,6 +366,12 @@ public class resenaController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Obtiene el promedio de calificación de las reseñas para un producto específico.
+     * 
+     * @param idProducto ID del producto.
+     * @return Promedio de calificación como Double.
+     */
     @Parameter(description = "ID del producto para calcular el promedio de calificación", required = true)
     @GetMapping("/promedioPorProducto/{idProducto}")
     @Operation(summary = "Obtener promedio de calificación por producto", description = "Obtiene el promedio de calificación de las reseñas para un producto específico.")
