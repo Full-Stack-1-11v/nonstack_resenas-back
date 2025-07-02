@@ -21,10 +21,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/v2/resena")
 public class ResenaControllerV2 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResenaControllerV2.class);
 
     @Autowired
     private resenaService resenaService;
@@ -53,13 +57,16 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<CollectionModel<EntityModel<Resena>>> listar() {
+        logger.info("Solicitud recibida: listar todas las reseñas");
         List<Resena> listaResena = resenaService.findAll();
         if (listaResena.isEmpty()) {
+            logger.info("No hay reseñas disponibles");
             return ResponseEntity.noContent().build();
         }
         List<EntityModel<Resena>> resenas = listaResena.stream()
             .map(assembler::toModel)
             .collect(Collectors.toList());
+        logger.info("Se encontraron {} reseñas", resenas.size());
         return ResponseEntity.ok(CollectionModel.of(resenas));
     }
 
@@ -85,13 +92,16 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<CollectionModel<EntityModel<Resena>>> resenasPorCliente(@PathVariable int idCliente) {
+        logger.info("Buscando reseñas para el cliente con ID: {}", idCliente);
         List<Resena> listaResenas = resenaService.findByIdCliente(idCliente);
         if (listaResenas.isEmpty()) {
+            logger.info("No hay reseñas para el cliente con ID: {}", idCliente);
             return ResponseEntity.noContent().build();
         }
         List<EntityModel<Resena>> resenas = listaResenas.stream()
             .map(assembler::toModel)
             .collect(Collectors.toList());
+        logger.info("Se encontraron {} reseñas para el cliente {}", resenas.size(), idCliente);
         return ResponseEntity.ok(CollectionModel.of(resenas));
     }
 
@@ -117,13 +127,16 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<CollectionModel<EntityModel<Resena>>> resenasPorProducto(@PathVariable Integer idProducto) {
+        logger.info("Buscando reseñas para el producto con ID: {}", idProducto);
         List<Resena> listaResenas = resenaService.findByIdProducto(idProducto);
         if (listaResenas.isEmpty()) {
+            logger.info("No hay reseñas para el producto con ID: {}", idProducto);
             return ResponseEntity.noContent().build();
         }
         List<EntityModel<Resena>> resenas = listaResenas.stream()
             .map(assembler::toModel)
             .collect(Collectors.toList());
+        logger.info("Se encontraron {} reseñas para el producto {}", resenas.size(), idProducto);
         return ResponseEntity.ok(CollectionModel.of(resenas));
     }
 
@@ -143,7 +156,9 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<EntityModel<Resena>> guardar(@RequestBody Resena nuevaResena) {
+        logger.info("Guardando nueva reseña: {}", nuevaResena);
         Resena resenaGuardada = resenaService.save(nuevaResena);
+        logger.info("Reseña guardada con ID: {}", resenaGuardada.getIdResena());
         return ResponseEntity.ok(assembler.toModel(resenaGuardada));
     }
 
@@ -164,12 +179,15 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<EntityModel<Resena>> actualizar(@PathVariable Integer idResena, @RequestBody Resena resenaActualizada) {
+        logger.info("Actualizando reseña con ID: {}", idResena);
         Resena resenaExistente = resenaService.findById(idResena);
         if (resenaExistente == null) {
+            logger.warn("Reseña no encontrada con ID: {}", idResena);
             return ResponseEntity.notFound().build();
         }
         resenaActualizada.setIdResena(idResena);
         Resena resenaModificada = resenaService.save(resenaActualizada);
+        logger.info("Reseña actualizada con ID: {}", idResena);
         return ResponseEntity.ok(assembler.toModel(resenaModificada));
     }
 
@@ -190,8 +208,10 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<EntityModel<Resena>> modificar(@PathVariable Integer idResena, @RequestBody Resena resenaParcial) {
+        logger.info("Modificando parcialmente la reseña con ID: {}", idResena);
         Resena resenaExistente = resenaService.findById(idResena);
         if (resenaExistente == null) {
+            logger.warn("Reseña no encontrada con ID: {}", idResena);
             return ResponseEntity.notFound().build();
         }
         if (resenaParcial.getDescripcion() != null) {
@@ -199,6 +219,7 @@ public class ResenaControllerV2 {
         }
         // Agrega más campos según sea necesario
         Resena resenaModificada = resenaService.save(resenaExistente);
+        logger.info("Reseña modificada parcialmente con ID: {}", idResena);
         return ResponseEntity.ok(assembler.toModel(resenaModificada));
     }
 
@@ -213,11 +234,14 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<Void> eliminar(@PathVariable Integer idResena) {
+        logger.info("Eliminando reseña con ID: {}", idResena);
         Resena resenaExistente = resenaService.findById(idResena);
         if (resenaExistente == null) {
+            logger.warn("Reseña no encontrada con ID: {}", idResena);
             return ResponseEntity.notFound().build();
         }
         resenaService.delete(resenaExistente);
+        logger.info("Reseña eliminada con ID: {}", idResena);
         return ResponseEntity.noContent().build();
     }
 
@@ -243,10 +267,13 @@ public class ResenaControllerV2 {
         )
     })
     public ResponseEntity<Double> promedioPorProducto(@PathVariable Integer idProducto) {
+        logger.info("Calculando promedio de calificación para el producto con ID: {}", idProducto);
         Double promedio = resenaService.findPromedioCalificacionPorProducto(idProducto);
         if (promedio == null) {
+            logger.info("No hay reseñas para el producto con ID: {}", idProducto);
             return ResponseEntity.noContent().build();
         } else {
+            logger.info("Promedio de calificación para el producto {}: {}", idProducto, promedio);
             return ResponseEntity.ok(promedio);
         }
     }
